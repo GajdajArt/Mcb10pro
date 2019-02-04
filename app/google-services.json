@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "431252707943",
+    "firebase_url": "https://mkbpro10.firebaseio.com",
+    "project_id": "mkbpro10",
+    "storage_bucket": "mkbpro10.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:431252707943:android:c124c86dfa75a992",
+        "android_client_info": {
+          "package_name": "com.labralab.mkbpro10"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "431252707943-rdolq38fl7u0lh2quffgaojoe1n081i7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.labralab.mkbpro10",
+            "certificate_hash": "73df69a8e865751e6ecb65c79fc1821159fdd369"
+          }
+        },
+        {
+          "client_id": "431252707943-v9d26pa3l0hk0vtpmrltkpqfg4p64uof.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzAAp91b1Jz9BRE4LlRoedTtT6QUsLSsY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "431252707943-v9d26pa3l0hk0vtpmrltkpqfg4p64uof.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
