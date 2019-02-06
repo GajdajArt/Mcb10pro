@@ -56,6 +56,14 @@ class CatalogFragment: BaseFragment(), CatalogContract.View {
             }
         }
     }
+//
+//    override fun hideProgressDialog() {
+//        catalogLoadingView.visibility = GONE
+//    }
+//
+//    override fun showProgressDialog() {
+//        catalogLoadingView.visibility = VISIBLE
+//    }
 
     @SuppressLint("SetTextI18n")
     override fun showUserData(user: User?) {

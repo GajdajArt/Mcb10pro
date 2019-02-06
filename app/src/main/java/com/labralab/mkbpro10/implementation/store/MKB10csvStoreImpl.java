@@ -2,28 +2,21 @@ package com.labralab.mkbpro10.implementation.store;
 
 import android.content.ContentValues;
 import android.content.Context;
-
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 import com.labralab.mkbpro10.R;
 import com.labralab.mkbpro10.model.entity.Section;
 import com.labralab.mkbpro10.model.store.MKB10Store;
 import com.opencsv.CSVReader;
-
 import io.reactivex.Single;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import javax.inject.Inject;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-
-import javax.inject.Inject;
 
 public class MKB10csvStoreImpl implements MKB10Store {
 
@@ -58,8 +51,7 @@ public class MKB10csvStoreImpl implements MKB10Store {
         return Single.fromCallable(new Callable<List<Section>>() {
             @Override
             public List<Section> call() throws Exception {
-                List<Section> resultList = new ArrayList<>();
-                resultList = getChildList(parent);
+                List<Section> resultList = getChildList(parent);
 
                 if (resultList.isEmpty()) {
                     rows = parse();
@@ -67,10 +59,37 @@ public class MKB10csvStoreImpl implements MKB10Store {
                     resultList = getChildList(parent);
                 }
 
+                database.close();
+
                 return resultList;
             }
         });
     }
+
+//   private void installDatabaseFromAssets() throws IOException {
+//        InputStream in = null;
+//        OutputStream out = null;
+//        try {
+//            in = context.getAssets().open("DBName.db");
+//
+//            File outputFile = new File(context.getDatabasePath("DBName.db").getPath());
+//
+//            out = new FileOutputStream(outputFile);
+//            byte[] buf = new byte[1024];
+//            int len;
+//            while ((len = in.read(buf)) > 0) {
+//                out.write(buf, 0, len);
+//            }
+//
+//
+//        } catch (IOException e1) {
+//            e1.printStackTrace();
+//        } finally {
+//            out.close();
+//            in.close();
+//        }
+//
+//    }
 
     private void saveToDb() {
         for (String[] row : rows) {
@@ -102,44 +121,9 @@ public class MKB10csvStoreImpl implements MKB10Store {
             cursor.close();
         }
 
-        database.close();
 
         return resultList;
     }
-
-//    private List<Section> createList() {
-//        List<Section> resultList = new ArrayList<>();
-//        String parent = String.valueOf(currentPos + 1);
-//
-//        while (true) {
-//            currentPos++;
-//            currentRow = rows.get(currentPos);
-//
-//            Section section = createSection(currentRow);
-//            Log.i("createList()", " : parent: " + parent + " cPos: " + currentPos + " : section created");
-//
-//            if (rows.size() > currentPos + 1 && !rows.get(currentPos + 1)[4].equals("") && Integer.parseInt(rows.get(currentPos + 1)[4]) > Integer.parseInt(parent)) {
-//                Log.i("createList()", " : parent: " + parent + " cPos: " + currentPos + " : new list");
-//                section.setList(createList());
-//            }
-//
-//            resultList.add(section);
-//            Log.i("createList()", " : parent: " + parent + " cPos: " + currentPos + " : section added");
-//
-//            if (isTheLastItem() || rows.get(currentPos + 1)[4].equals("") || Integer.parseInt(rows.get(currentPos + 1)[4]) < Integer.parseInt(parent)){
-//                Log.i("createList()", " : parent: " + parent + " cPos: " + currentPos + " size: " + rows.size() +" : list returned");
-//                return resultList;
-//            }
-//        }
-//    }
-
-//    private boolean isTheLastItem() {
-//        return currentPos == rows.size() - 1;
-//    }
-//
-//    private Section createSection(String[] row) {
-//        return new Section(row[2], row[3], null);
-//    }
 
     private List<String[]> parse() {
         List<String[]> resultList = new ArrayList<>();
@@ -158,7 +142,7 @@ public class MKB10csvStoreImpl implements MKB10Store {
     class DBHelper extends SQLiteOpenHelper {
 
         public DBHelper(Context context) {
-            super(context, "DBName", null, 1);
+            super(context, "DBName.db", null, 1);
         }
 
         @Override
