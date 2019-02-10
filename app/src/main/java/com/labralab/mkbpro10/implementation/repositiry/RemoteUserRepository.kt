@@ -10,16 +10,43 @@ import android.util.Log
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ValueEventListener
 import com.labralab.mkbpro10.model.repository.LocalUserStore
+import io.reactivex.Completable
+import io.reactivex.Single
 
 
 class RemoteUserRepository
-@Inject constructor(private val database: FirebaseDatabase,
-                    private val localUserStore: LocalUserStore): UserRepository {
+@Inject constructor(
+    private val database: FirebaseDatabase,
+    private val localUserStore: LocalUserStore
+) : UserRepository {
 
     private val databaseReference = database.getReference(USER_NODE)
 
-    override fun createUser(user: User) {
-//        databaseReference.child("${user.uid}").setValue(user)
+    override fun isUserCreated(user: User): Single<Boolean> {
+        return Single.create {
+            databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onCancelled(data: DatabaseError) {
+                    it.onError(Throwable(data.message))
+                }
+
+                override fun onDataChange(data: DataSnapshot) {
+                    it.onSuccess(data.hasChild(user.uid))
+                }
+            })
+        }
+    }
+
+    override fun createUser(user: User): Completable {
+        return Completable.create {
+            val emitter = it
+            databaseReference.child(user.uid).setValue(user)
+                .addOnCanceledListener {
+                    emitter.onError(Throwable())
+                }
+                .addOnCompleteListener {
+                    emitter.onComplete()
+                }
+        }
     }
 
     override fun startUserDataChangeListener(userId: String) {

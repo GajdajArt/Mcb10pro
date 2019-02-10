@@ -6,6 +6,7 @@ import com.labralab.mkbpro10.R
 import com.labralab.mkbpro10.ui.activity.MainActivity
 import com.labralab.mkbpro10.ui.fragment.account.AccountFragment
 import com.labralab.mkbpro10.ui.fragment.catalog.CatalogFragment
+import com.labralab.mkbpro10.ui.fragment.create.CreateFragment
 import com.labralab.mkbpro10.ui.fragment.login.LoginFragment
 
 
@@ -19,6 +20,7 @@ class BaseRouter(private val activity: MainActivity) {
         screenMap[Screens.LOGIN_FRAGMENT_KAY] = LoginFragment()
         screenMap[Screens.CATALOG_FRAGMENT_KAY] = CatalogFragment()
         screenMap[Screens.ACCOUNT_FRAGMENT_KAY] = AccountFragment()
+        screenMap[Screens.CREATE_FRAGMENT_KAY] = CreateFragment()
     }
 
     fun addNewScreen(screenKay: String) {

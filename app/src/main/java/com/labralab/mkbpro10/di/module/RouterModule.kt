@@ -1,13 +1,11 @@
 package com.labralab.mkbpro10.di.module
 
-import com.labralab.mkbpro10.implementation.router.AccountRouterImpl
-import com.labralab.mkbpro10.implementation.router.CatalogRouterImpl
-import com.labralab.mkbpro10.implementation.router.LoginRouterImpl
-import com.labralab.mkbpro10.implementation.router.MainRouterImpl
+import com.labralab.mkbpro10.implementation.router.*
 import com.labralab.mkbpro10.ui.activity.MainActivity
 import com.labralab.mkbpro10.ui.activity.MainRouter
 import com.labralab.mkbpro10.ui.fragment.account.AccountRouter
 import com.labralab.mkbpro10.ui.fragment.catalog.CatalogRouter
+import com.labralab.mkbpro10.ui.fragment.create.CreateRouter
 import com.labralab.mkbpro10.ui.fragment.login.LoginRouter
 import com.labralab.mkbpro10.ui.router.BaseRouter
 import dagger.Binds
@@ -37,4 +35,7 @@ abstract class RouterModule {
 
     @Binds
     abstract fun provideAccountRouter(accountRouter: AccountRouterImpl): AccountRouter
+
+    @Binds
+    abstract fun provideCreateRouter(createRouter: CreateRouterImpl): CreateRouter
 }

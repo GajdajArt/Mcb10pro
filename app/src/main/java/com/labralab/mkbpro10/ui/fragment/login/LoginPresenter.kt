@@ -1,8 +1,10 @@
 package com.labralab.mkbpro10.ui.fragment.login
 
+import android.annotation.SuppressLint
 import com.labralab.mkbpro10.di.Schedulers
 import com.labralab.mkbpro10.model.entity.Account
 import com.labralab.mkbpro10.model.entity.User
+import com.labralab.mkbpro10.model.repository.LocalUserStore
 import com.labralab.mkbpro10.model.repository.LoginRepository
 import com.labralab.mkbpro10.model.repository.UserRepository
 import com.labralab.mkbpro10.model.store.MKB10Store
@@ -20,12 +22,14 @@ class LoginPresenter
                     private val loginRepository: LoginRepository,
                     private val userRepository: UserRepository,
                     private val mkB10Store: MKB10Store,
+                    private val localUserStore: LocalUserStore,
                     @Named(Schedulers.IO_SCHEDULER) private val ioScheduler: Scheduler,
                     @Named(Schedulers.UI_SCHEDULER) private val uiScheduler: Scheduler):
         BasePresenter<LoginContract.View>(),
         LoginContract.Presenter {
 
     private val LOGIN_DISPOSABLE_KAY = 1
+    private val CHECK_USER_DISPOSABLE_KAY = 2
 
     override fun onBind() {
         super.onBind()
@@ -34,6 +38,7 @@ class LoginPresenter
         createCatalog()
     }
 
+    @SuppressLint("CheckResult")
     private fun createCatalog() {
         mkB10Store.getMKBList("")
             .subscribeOn(ioScheduler)
@@ -65,9 +70,26 @@ class LoginPresenter
     }
 
     private fun onLoginSuccessful(user: User) {
-        userRepository.startUserDataChangeListener(user.uid)
+        checkIsUserCreated(user)
+    }
 
+    private fun checkIsUserCreated(user: User) {
+        subscribe(CHECK_USER_DISPOSABLE_KAY, userRepository.isUserCreated(user)
+            .subscribeOn(ioScheduler)
+            .observeOn(uiScheduler)
+            .subscribe({onCheckUserResult(it, user)},{processError(it)}))
+    }
+
+    private fun onCheckUserResult (created: Boolean, user: User) {
         view?.hideProgressDialog()
-        loginRouter.openCatalog()
+
+        if (created) {
+            userRepository.startUserDataChangeListener(user.uid)
+            loginRouter.openCatalog()
+        } else {
+            localUserStore.saveUser(user)
+            loginRouter.openCreateScreen()
+        }
     }
 }
+

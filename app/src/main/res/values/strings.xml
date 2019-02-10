@@ -16,4 +16,8 @@
     <string name="login_title">Вход в справочник</string>
     <string name="login_hint">Введите email</string>
     <string name="password_hint">Введите пароль</string>
+    <string name="enter_data_title">Введите ваши данные</string>
+    <string name="name_hint">Имя</string>
+    <string name="surname_hint">Фамилия</string>
+    <string name="save_button_title">Сохранить</string>
 </resources>

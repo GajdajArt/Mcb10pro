@@ -4,7 +4,7 @@ class User(var uid: String) {
 
     constructor() : this("")
 
-    lateinit var firstName: String
-    lateinit var secondName: String
-    lateinit var point: String
+    var firstName: String = ""
+    var secondName: String = ""
+    var point: String = ""
 }

@@ -6,6 +6,8 @@ import com.labralab.mkbpro10.ui.fragment.account.AccountContract
 import com.labralab.mkbpro10.ui.fragment.account.AccountPresenter
 import com.labralab.mkbpro10.ui.fragment.catalog.CatalogContract
 import com.labralab.mkbpro10.ui.fragment.catalog.CatalogPresenter
+import com.labralab.mkbpro10.ui.fragment.create.CreateContract
+import com.labralab.mkbpro10.ui.fragment.create.CreatePresenter
 import com.labralab.mkbpro10.ui.fragment.login.LoginContract
 import com.labralab.mkbpro10.ui.fragment.login.LoginPresenter
 import dagger.Binds
@@ -25,4 +27,7 @@ abstract class PresenterModule {
 
     @Binds
     abstract fun accountPresenter(accountPresenter: AccountPresenter): AccountContract.Presenter
+
+    @Binds
+    abstract fun createPresenter(createPresenter: CreatePresenter): CreateContract.Presenter
 }
