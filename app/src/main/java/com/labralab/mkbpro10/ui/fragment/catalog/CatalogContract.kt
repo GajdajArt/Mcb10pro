@@ -10,6 +10,8 @@ interface CatalogContract {
 
         fun showList(list: List<Section>)
 
+        fun showLastSection(section: Section)
+
         fun showUserData(user: User?)
     }
 

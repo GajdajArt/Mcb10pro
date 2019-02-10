@@ -2,6 +2,7 @@ package com.labralab.mkbpro10.ui.fragment.catalog
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.view.View.GONE
@@ -9,16 +10,17 @@ import android.view.View.VISIBLE
 import com.labralab.mkbpro10.R
 import com.labralab.mkbpro10.model.entity.Section
 import com.labralab.mkbpro10.model.entity.User
+import com.labralab.mkbpro10.ui.activity.MainActivity
 import com.labralab.mkbpro10.ui.base.BaseFragment
 import kotlinx.android.synthetic.main.fragment_account.*
 import kotlinx.android.synthetic.main.fragment_catalog.*
+import kotlinx.android.synthetic.main.nav_header_main.*
 import java.lang.reflect.Array
 import javax.inject.Inject
 
 private const val PARAMS = "PARAMS"
 
 class CatalogFragment: BaseFragment(), CatalogContract.View {
-
     @Inject
     lateinit var presenter: CatalogContract.Presenter
 
@@ -41,6 +43,10 @@ class CatalogFragment: BaseFragment(), CatalogContract.View {
     override fun onStart() {
         super.onStart()
         presenter.bind(this)
+
+        catalogSwipeRefreshLayout.setOnRefreshListener {
+            presenter.bind(this)
+        }
     }
 
     override fun onStop() {
@@ -48,6 +54,10 @@ class CatalogFragment: BaseFragment(), CatalogContract.View {
         presenter.unbind()
     }
 
+    override fun stopRefreshing() {
+        super.stopRefreshing()
+        catalogSwipeRefreshLayout.isRefreshing = false
+    }
     override fun showList(list: List<Section>) {
         adapter.list = ArrayList(list)
         adapter.listener = object : CatalogListItemHolder.OnItemClickListener {
@@ -55,6 +65,14 @@ class CatalogFragment: BaseFragment(), CatalogContract.View {
                 presenter.onItemClick(section)
             }
         }
+    }
+
+    override fun showLastSection(section: Section) {
+        catalogListRV.visibility = GONE
+        sectionDetails.visibility = VISIBLE
+
+        sectionCodeTV.text = section.code
+        sectionDescriptionTV.text = section.description
     }
 
     @SuppressLint("SetTextI18n")
@@ -79,7 +97,18 @@ class CatalogFragment: BaseFragment(), CatalogContract.View {
         val layoutManager = LinearLayoutManager(activity)
 
         catalogListRV.layoutManager = layoutManager
+        catalogListRV.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
         catalogListRV.adapter = adapter
+    }
+
+    override fun hideProgressDialog() {
+        super.hideProgressDialog()
+        (activity as MainActivity).getMainSupportActionBar()?.show()
+    }
+
+    override fun showProgressDialog() {
+        super.showProgressDialog()
+        (activity as MainActivity).getMainSupportActionBar()?.hide()
     }
 
     companion object {

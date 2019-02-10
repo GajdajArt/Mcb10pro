@@ -8,6 +8,10 @@ import javax.inject.Inject
 class CatalogRouterImpl
 @Inject constructor(private val baseRouter: BaseRouter): CatalogRouter {
 
+    override fun back() {
+        baseRouter.back()
+    }
+
     override fun openNextSection(parent: String) {
         baseRouter.addNewScreen(Screens.CATALOG_FRAGMENT_KAY, parent)
     }

@@ -6,4 +6,6 @@ import io.reactivex.Single
 interface MKB10Store {
 
     fun getMKBList(parent: String): Single<List<Section>>
+
+    fun getDetails(id: String): Single<Section>
 }

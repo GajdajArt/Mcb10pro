@@ -5,4 +5,6 @@ interface CatalogRouter {
     fun openAccount()
 
     fun openNextSection(parent: String)
+
+    fun back()
 }

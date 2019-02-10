@@ -5,6 +5,7 @@ import com.labralab.mkbpro10.model.entity.Account
 import com.labralab.mkbpro10.model.entity.User
 import com.labralab.mkbpro10.model.repository.LoginRepository
 import com.labralab.mkbpro10.model.repository.UserRepository
+import com.labralab.mkbpro10.model.store.MKB10Store
 import com.labralab.mkbpro10.ui.base.BasePresenter
 import io.reactivex.Scheduler
 import javax.inject.Inject
@@ -18,6 +19,7 @@ class LoginPresenter
 @Inject constructor(private val loginRouter: LoginRouter,
                     private val loginRepository: LoginRepository,
                     private val userRepository: UserRepository,
+                    private val mkB10Store: MKB10Store,
                     @Named(Schedulers.IO_SCHEDULER) private val ioScheduler: Scheduler,
                     @Named(Schedulers.UI_SCHEDULER) private val uiScheduler: Scheduler):
         BasePresenter<LoginContract.View>(),
@@ -29,6 +31,14 @@ class LoginPresenter
         super.onBind()
 
         view?.hideActionBar()
+        createCatalog()
+    }
+
+    private fun createCatalog() {
+        mkB10Store.getMKBList("")
+            .subscribeOn(ioScheduler)
+            .observeOn(uiScheduler)
+            .subscribe({},{})
     }
 
     override fun onUnBind() {

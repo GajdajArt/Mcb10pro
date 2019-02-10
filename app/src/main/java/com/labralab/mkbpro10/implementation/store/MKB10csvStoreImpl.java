@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import com.labralab.mkbpro10.R;
+import com.labralab.mkbpro10.exception.NoSubCatalogException;
 import com.labralab.mkbpro10.model.entity.Section;
 import com.labralab.mkbpro10.model.store.MKB10Store;
 import com.opencsv.CSVReader;
@@ -59,12 +60,18 @@ public class MKB10csvStoreImpl implements MKB10Store {
             @Override
             public List<Section> call() throws Exception {
                 List<Section> resultList = new ArrayList<>();
-                resultList = getChildList(parent);
-
-                if (resultList.isEmpty()) {
-                    rows = parse();
-                    saveToDb();
+                try {
                     resultList = getChildList(parent);
+
+                    if (resultList.isEmpty()) {
+                        rows = parse();
+                        saveToDb();
+                        resultList = getChildList(parent);
+                        database.close();
+                    }
+
+                } catch (NoSubCatalogException e) {
+                    throw new NoSubCatalogException();
                 }
 
                 return resultList;
@@ -85,7 +92,7 @@ public class MKB10csvStoreImpl implements MKB10Store {
         }
     }
 
-    private List<Section> getChildList(String parent) {
+    private List<Section> getChildList(String parent) throws NoSubCatalogException {
         List<Section> resultList = new ArrayList<>();
 
         Cursor cursor = database.query(TABLE_NAME, null, PARENT + " = ?", new String[]{parent}, null, null, null);
@@ -100,46 +107,14 @@ public class MKB10csvStoreImpl implements MKB10Store {
                 resultList.add(section);
             } while (cursor.moveToNext());
             cursor.close();
+        } else {
+            if (parent != "") {
+                throw new NoSubCatalogException();
+            }
         }
-
-        database.close();
 
         return resultList;
     }
-
-//    private List<Section> createList() {
-//        List<Section> resultList = new ArrayList<>();
-//        String parent = String.valueOf(currentPos + 1);
-//
-//        while (true) {
-//            currentPos++;
-//            currentRow = rows.get(currentPos);
-//
-//            Section section = createSection(currentRow);
-//            Log.i("createList()", " : parent: " + parent + " cPos: " + currentPos + " : section created");
-//
-//            if (rows.size() > currentPos + 1 && !rows.get(currentPos + 1)[4].equals("") && Integer.parseInt(rows.get(currentPos + 1)[4]) > Integer.parseInt(parent)) {
-//                Log.i("createList()", " : parent: " + parent + " cPos: " + currentPos + " : new list");
-//                section.setList(createList());
-//            }
-//
-//            resultList.add(section);
-//            Log.i("createList()", " : parent: " + parent + " cPos: " + currentPos + " : section added");
-//
-//            if (isTheLastItem() || rows.get(currentPos + 1)[4].equals("") || Integer.parseInt(rows.get(currentPos + 1)[4]) < Integer.parseInt(parent)){
-//                Log.i("createList()", " : parent: " + parent + " cPos: " + currentPos + " size: " + rows.size() +" : list returned");
-//                return resultList;
-//            }
-//        }
-//    }
-
-//    private boolean isTheLastItem() {
-//        return currentPos == rows.size() - 1;
-//    }
-//
-//    private Section createSection(String[] row) {
-//        return new Section(row[2], row[3], null);
-//    }
 
     private List<String[]> parse() {
         List<String[]> resultList = new ArrayList<>();
@@ -153,6 +128,36 @@ public class MKB10csvStoreImpl implements MKB10Store {
         }
 
         return resultList;
+    }
+
+    @NotNull
+    @Override
+    public Single<Section> getDetails(@NotNull final String id) {
+        return Single.fromCallable(new Callable<Section>() {
+            @Override
+            public Section call() throws Exception {
+                return getDetailsFromDB(id);
+            }
+        });
+    }
+
+    private Section getDetailsFromDB(String id) {
+        Section result = null;
+
+        Cursor cursor = database.query(TABLE_NAME, null, ID + " = ?", new String[]{id}, null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                int codeID = cursor.getColumnIndex(CODE);
+                int descriptionID = cursor.getColumnIndex(DESCRIPTION);
+                int parentID = cursor.getColumnIndex(PARENT);
+                int idID = cursor.getColumnIndex(ID);
+
+                result = new Section(cursor.getString(idID), cursor.getString(codeID), cursor.getString(descriptionID), cursor.getString(parentID));
+            } while (cursor.moveToNext());
+            cursor.close();
+            database.close();
+        }
+        return result;
     }
 
     class DBHelper extends SQLiteOpenHelper {

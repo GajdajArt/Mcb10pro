@@ -9,7 +9,7 @@ import com.labralab.mkbpro10.ui.fragment.catalog.CatalogFragment
 import com.labralab.mkbpro10.ui.fragment.login.LoginFragment
 
 
-class BaseRouter(activity: MainActivity) {
+class BaseRouter(private val activity: MainActivity) {
 
     private val fragmentManager: FragmentManager = activity.supportFragmentManager
 
@@ -52,5 +52,9 @@ class BaseRouter(activity: MainActivity) {
         fragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, screenMap[screenKay]!!)
                 .commit()
+    }
+
+    fun back(){
+        fragmentManager.popBackStack()
     }
 }

@@ -1,6 +1,8 @@
 package com.labralab.mkbpro10.ui.fragment.catalog
 
+import android.annotation.SuppressLint
 import com.labralab.mkbpro10.di.Schedulers
+import com.labralab.mkbpro10.exception.NoSubCatalogException
 import com.labralab.mkbpro10.model.entity.Section
 import com.labralab.mkbpro10.model.repository.LocalUserStore
 import com.labralab.mkbpro10.model.store.MKB10Store
@@ -21,6 +23,7 @@ class CatalogPresenter
     private lateinit var parent: String
 
     private var list: List<Section>? = null
+    private var section: Section? = null
 
     override fun setParent(parent: String) {
         this.parent = parent
@@ -35,8 +38,11 @@ class CatalogPresenter
             view?.showUserData(localUserStore.getUser())
             view?.showList(list!!)
         }
+
+        view?.stopRefreshing()
     }
 
+    @SuppressLint("CheckResult")
     private fun getSections() {
         view?.showProgressDialog()
 
@@ -48,9 +54,28 @@ class CatalogPresenter
                 view?.showUserData(localUserStore.getUser())
                 view?.showList(it)
                 view?.hideProgressDialog()
-            },{
-                view?.showMessage(it.message.toString())
-            }))
+            },{onError(it)}))
+    }
+
+    private fun onError(throwable: Throwable) {
+        if (throwable is NoSubCatalogException) {
+            showDetails()
+        } else {
+            view?.hideProgressDialog()
+            view?.showMessage(throwable.message.toString())
+        }
+    }
+
+    private fun showDetails() {
+        subscribe(2, mkB10Store.getDetails(parent)
+            .subscribeOn(ioScheduler)
+            .observeOn(uiScheduler)
+            .subscribe({
+                section = it
+                view?.showUserData(localUserStore.getUser())
+                view?.showLastSection(section!!)
+                view?.hideProgressDialog()
+            },{onError(it)}))
     }
 
     override fun onItemClick(section: Section) {
