@@ -51,6 +51,9 @@ class BaseRouter(private val activity: MainActivity) {
     }
 
     fun replaceScreen(screenKay: String) {
+        while (fragmentManager.backStackEntryCount > 0) {
+            fragmentManager.popBackStackImmediate()
+        }
         fragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, screenMap[screenKay]!!)
                 .commit()
